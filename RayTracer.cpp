@@ -36,22 +36,21 @@ Color RayTracer::trace(Ray r, int depth){
   // YOUR CODE FOR RECURSIVE RAY TRACING GOES HERE
 
   // Calculate intersection P between ray and closest object
-  
+
   Object* hitObj = intersect(r);
   if (hitObj == NULL)
   {     
     return rad;
   }
 
-  if (typeid(*hitObj) == typeid(Triangle) )
-    rad = Color(0.1,1.0,0.0,0.0);
-  else
-    rad = Color(0.1,1.0,1.0,0.0);
+
 
   // Determine the material type of that object 
   Material* mat = hitObj->getMaterial();
 
-  return Phong(r, P);
+  Point intersection =  hitObj->getIntersection(r);
+
+  return Phong(hitObj->getNormal(intersection), intersection, r, mat, hitObj);
 
   //hitObj->getMaterial();
 
@@ -70,10 +69,25 @@ Color RayTracer::Phong(Point normal,Point p, Ray r, Material * m, Object * o){
   
   // YOUR CODE HERE.
   // There is ambient lighting irrespective of shadow.
+  // For each Light Source L do:
+  Point pointLight =  scene->getNextLight();
+ // while (pointLight != NULL)
+  {
+    // If L visable then:
+    // Calculate Radance, rad at P
+    // rad = rad + Radiance at P
+
+  }
+
   // Specular-diffuse lighting only if the point is not in shadow
   
   // Remember, you need to account for all the light sources.
   
+  if (typeid(*o) == typeid(Triangle) )
+    ret = Color(0.1,1.0,0.0,0.0);
+  else
+    ret = Color(0.1,1.0,1.0,0.0);
+
   return ret;
 }
 
