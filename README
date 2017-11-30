@@ -1,0 +1,24 @@
+/*
+*   Skeleton code for CPSC 453 Assignment 4
+*
+*   Based on code written by:
+*   Karl Augsten   
+*/
+
+To compile, type:
+
+make all
+
+This will yield an executable called writepixels,
+which writes the rendered image to TestScene.rgb which you will have to 
+convert to .png using the command:
+
+convert -size 512x512 -depth 8 TestScene.rgb File.png
+
+The size of the image can be controlled within the file WritePixels.cpp
+
+The skeleton code is structured so that it should compile and yield a black 
+image when you run the executable. Please go through the code and write
+the missing code related to tracing rays, lighting and computing intersections.
+
+
