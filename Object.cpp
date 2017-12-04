@@ -23,79 +23,144 @@ Sphere::Sphere(Point p, double r){
 }
 #define EPS 1E-6
 
+// Point Triangle::getIntersection(Ray r){
+
+// 	// YOUR INTERSECTION CODE HERE.
+// 	// RETURN THE POINT OF INTERSECTION FOR THIS TRIANGLE.
+
+//     // Step 1: finding P
+//     // x(t) = p0 + tv
+    
+//     Point p0 = r.p;
+//     Point directionVector = r.v;
+
+//     //Point normal = this->n;
+//     Point normal = getNormal(n);
+
+//     float area2 = normal.length(); 
+
+//     // check if ray and plane are parallel ?
+//     float NdotRayDirection = normal*directionVector;
+
+//     // not need probs?
+//     if (fabs(NdotRayDirection) < 1e-8 ) // almost 0
+//         return Point::Infinite(); // they are parallel
+
+
+//     // compute distance parameter using equation 2
+
+//     // D is the distance from the origin (0, 0, 0) to the plane (if we trace a line from the origin to the plane, parallel to the plane's normal). 
+//     float distance = (normal * p1); // Get d, Dot Product of p1 and Normal
+
+//     // // Calculate t
+//     // // t is distance from the ray origin O to P
+//     // float t = ((normal * p0) + distance) / (normal * directionVector);    
+
+//     float t = -((normal * p0) + distance) / (normal * directionVector);    
+    
+//      if (t < 0)   
+//         return Point::Infinite(); // triangle is behind the ray cast
+
+
+//     // compute the intersection point using equation 1
+//     // p = orig + t * dir;
+//     Point intersectionPoint ((p0.x) + t * directionVector.x, (p0.y) + t * directionVector.y, (p0.z) + t * directionVector.z);
+//     //Point intersectionPoint ((p0.x + t) * directionVector.x, (p0.y + t) * directionVector.y, (p0.z + t) * directionVector.z);
+
+//     // Step 2: inside-outside testing
+
+//     Point C; // vector perpendicular to triangle's plane
+
+//     // edge 0
+//     Point edge0 = p2 - p1;
+//     Point vp0 = intersectionPoint - p1;
+//     C = (edge0.cross(vp0));
+
+//     if (normal * C < 0) 
+//         return Point::Infinite(); // intersectionPoint is outside
+
+//     // edge 1
+//     Point edge1 = p3 - p2;
+//     Point vp1 = intersectionPoint - p2;
+//     C = edge1.cross(vp1); 
+    
+//     float u = C.length() / area2;
+//     if ((u = (normal * C)) < 0) 
+//         return Point::Infinite(); // intersectionPoint is outside
+
+//     // edge 2
+//     Point edge2 = p1 - p3;
+//     Point vp2 = intersectionPoint - p3;
+
+//     C = edge2.cross(vp2);
+//     float v = C.length() / area2;
+//     if ((v = (normal * C)) < 0) 
+//         return Point::Infinite(); // P is on the right side
+
+//     float denom = normal*normal; 
+//     u /= denom;
+//     v /= denom;
+
+//     Point p (u,v,p2.z); // dont know about this
+
+//     return p; // Ray hits triangle!
+// }
+
+
 Point Triangle::getIntersection(Ray r){
 
 	// YOUR INTERSECTION CODE HERE.
-	// RETURN THE POINT OF INTERSECTION FOR THIS TRIANGLE.
-
-    // Step 1: finding P
-
-    // x(t) = p0 + tv
+    // RETURN THE POINT OF INTERSECTION FOR THIS TRIANGLE.
     
+    // Ray Equation: x(t) = p0 + tv
     Point p0 = r.p;
     Point directionVector = r.v;
 
-    //Point normal = this->n;
-    Point normal = getNormal(n);
+    Point Origin = p1 - p0;
+    Point edge1 = p1 - p3;
+    Point edge2 = p1 - p2;
 
-    float area2 = normal.length(); 
+   // Check Rules:
+    // 1) a1 > 0
+    // 2) a2 > 0
+    // 3) a1 + 12 < 1
 
-    // check if ray and plane are parallel ?
-    float NdotRayDirection = normal*directionVector;
-
-    // not need probs?
-    if (fabs(NdotRayDirection) < 1e-8 ) // almost 0
-        return Point::Infinite(); // they are parallel
+    // Calculate the Determinate
+    double det = (edge2.x * ((edge1.y * directionVector.z) - (directionVector.y * edge1.z)));
+    det += edge2.y * ((directionVector.x * edge1.z) - (edge1.x * directionVector.z));
+    det += edge2.z * ((edge1.x * directionVector.y) - (edge1.y * directionVector.x));
 
 
-    // compute distance parameter using equation 2
+    if (det < EPS && det > -EPS)  // Between the min and max bounds
+    {
+        return Point::Infinite(); // Return point that will not be rendered
+    }
 
-    // D is the distance from the origin (0, 0, 0) to the plane (if we trace a line from the origin to the plane, parallel to the plane's normal). 
-    float distance = normal * (this->p1); // Get d, Dot Product of p1 and Normal
+    // Calculate a1
+    double a1 = (Origin.x * ((edge1.y * directionVector.z) - (directionVector.y * edge1.z)));
+    a1 += Origin.y * ((directionVector.x * edge1.z) - (edge1.x * directionVector.z));
+    a1 += Origin.z * ((edge1.x * directionVector.y) - (edge1.y * directionVector.x));
+    a1 /= det;
 
-    // // Calculate t
-    // // t is distance from the ray origin O to P
-    float t = -((normal * p0) + distance) / (normal * directionVector);    
+    if (a1 < EPS || a1 > 1) // Check bounds
+    {
+        return Point::Infinite();
+    }
     
-     if (t < 0)   
-        return Point::Infinite(); // triangle is behind the ray cast
+    double a2 = (directionVector.z * ((edge2.x * Origin.y) - (Origin.x * edge2.y)));
+    a2 += directionVector.y * ((Origin.x * edge2.z ) - (edge2.x * Origin.z));
+    a2 += directionVector.x * ((edge2.y * Origin.z ) - (Origin.y * edge2.z));
+    a2 /= det;
 
+    if (a2 < EPS || a1 + a2 > 1 ) // a1 + a2 must be < 1
+    {
+        return Point::Infinite();
+    }
 
-    // compute the intersection point using equation 1
-    // p = orig + t * dir;
-    Point intersectionPoint ((p0.x + t) * directionVector.x, (p0.y + t) * directionVector.y, (p0.z + t) * directionVector.z);
+    // Intersection!
+    Point hitPoint = p1 + ((p2 - p1) * a1) + ((p3 - p1) * a2); 
 
-    // Step 2: inside-outside testing
-
-    Point C; // vector perpendicular to triangle's plane
-
-    // edge 0
-    Point edge0 = p2 - p1;
-    Point vp0 = intersectionPoint - p1;
-    C = (edge0.cross(vp0));
-
-    if (normal*(C) < 0) 
-        return Point::Infinite(); // P is on the right side
-
-    // edge 1
-    Point edge1 = p3 - p2;
-    Point vp1 = intersectionPoint - p2;
-    C = edge1.cross(vp1); 
-    
-    float u = C.length() / area2;
-    if ((u = (normal * C)) < 0) 
-        return Point::Infinite(); // P is on the right side
-
-    // edge 2
-    Point edge2 = p1 - p3;
-    Point vp2 = intersectionPoint - p3;
-
-    C = edge2.cross(vp2);
-    float v = C.length() / area2;
-    if ((v = (normal * C)) < 0) 
-        return Point::Infinite(); // P is on the right side
-
-    return intersectionPoint; // Ray hits triangle!
+    return hitPoint;
 }
 
 Point Triangle::getNormal(Point p){
@@ -161,7 +226,8 @@ Point Sphere::getIntersection(Ray r){
 
     //c = ||p0 - c||^2 - r^2
 
-    float c = len*len - (radius*radius);
+    float c = len*len - (radius*radius); // Center of the Circle
+
     if (solveQuadratic(a, b, c, t0, t1) == false)
     {
         return Point::Infinite();  

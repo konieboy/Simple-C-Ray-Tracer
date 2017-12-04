@@ -1,5 +1,17 @@
 #include "RayTracer.h"
 #include <typeinfo>
+#include <iostream>
+
+
+#define GLFW_INCLUDE_GLCOREARB
+#define GL_GLEXT_PROTOTYPES
+#include <GLFW/glfw3.h>
+
+#include <glm/gtx/euler_angles.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+using namespace glm;
+
 RayTracer::RayTracer(Scene * s, int maxd, int sm){
   scene = s;
   maxdepth = maxd;
@@ -43,8 +55,6 @@ Color RayTracer::trace(Ray r, int depth){
     return rad;
   }
 
-
-
   // Determine the material type of that object 
   Material* mat = hitObj->getMaterial();
 
@@ -64,20 +74,65 @@ Color RayTracer::trace(Ray r, int depth){
 }
 
 // Local Phong illumination at a point.
-Color RayTracer::Phong(Point normal,Point p, Ray r, Material * m, Object * o){
+Color RayTracer::Phong(Point normal,Point p, Ray r, Material * m, Object * o)
+{
   Color ret = Color(0.0, 0.0, 0.0, 0.0);
   
   // YOUR CODE HERE.
   // There is ambient lighting irrespective of shadow.
   // For each Light Source L do:
-  Point pointLight =  scene->getNextLight();
- // while (pointLight != NULL)
+  // Point pointLight =  scene->getNextLight();
+  vector <Point> pointLights =  scene->lights;
+
+
+  Color LightColor = Color(1.0,1.0,1.0,1.0); // White light
+
+  float LightPower = 30.0f;
+
+  Color ambientColor = m->getAmbient(p);
+  //ret = ret + ambientColor;
+
+
+  for (int i = 0 ;i < pointLights.size(); i++)
   {
-    // If L visable then:
-    // Calculate Radance, rad at P
-    // rad = rad + Radiance at P
+    // If L visable
+    // Draw ray from light to object, end if blocked by an object
+
+
+    Ray lightRay(pointLights[i],p); // Ray from light to Object
+
+    Object* hitObj = intersect(lightRay);
+    if (hitObj == o)
+    {
+      cout << "\n Lightx: " << pointLights[i].x << endl;
+      cout << "\n Lighty: " << pointLights[i].y << endl;
+
+      // Add difuse color
+      //ret = ret + ambientColor;
+
+    // Calculate Radance, rad at point
+    // rad = rad + Radiance at point
+    // Code taken from Assignment 3 shader
+
+    //vec3 MaterialAmbientColor = vec3(0.1,0.1,0.1) * MaterialDiffuseColor;
+
+
+    // Vec3 LightColor = vec3(1,1,1); // White light
+    // float LightPower = 30.0f;
+    // vec3 lightPos = vec3(4,0,4);
+
+    //ret = ret + pointLights[i]
+      // Something blocking light path
+
+
+    }
+
 
   }
+
+
+  //return ret;
+
 
   // Specular-diffuse lighting only if the point is not in shadow
   
@@ -87,6 +142,7 @@ Color RayTracer::Phong(Point normal,Point p, Ray r, Material * m, Object * o){
     ret = Color(0.1,1.0,0.0,0.0);
   else
     ret = Color(0.1,1.0,1.0,0.0);
+    //Color ambientColor = m->getAmbient(p);
 
   return ret;
 }

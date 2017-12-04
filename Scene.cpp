@@ -69,7 +69,7 @@ Scene * Scene::initTestScene(int N){
     Material * test = new Material();
     test->type = DIFFUSE;
     test->kr = 0.03;
-    test->ambient = Color(0.0,0.0,0.0,1.0);
+    test->ambient = Color(1.0,0.0,0.0,1.0);
     test->diffuse = Color(0.0,0.6,0.6,1.0);
     test->specular = Color(0.2,0.2,0.2,1.0);
     
@@ -90,7 +90,7 @@ Scene * Scene::initTestScene(int N){
     sphere->type = REFLECTIVE;
     // give sphere some reflectivity;
     sphere->kr = 0.85;
-    sphere->ambient = Color(0.00,0.00,0.00,1.0);
+    sphere->ambient = Color(0.00,1.00,0.00,1.0);
     sphere->diffuse = Color(0.0,0.0,0.0,1.0);
     sphere->specular = Color(0.0,0.0,0.0,1.0);
     Object * s1 = new Sphere(Point(400.0,130.0,320.0),120.0);
@@ -150,7 +150,7 @@ Scene * Scene::initTestScene(int N){
 
     // Add light sources
     ret->addLight(Point(185.0,2000.0,169.0));
-    ret->addLight(Point(400.0,2000.0,320.0));
+    ret->addLight(Point(0,0,0.0));
 
     // set Camera location
     ret->setCamera(new Point(278,273,-500));
