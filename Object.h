@@ -14,8 +14,8 @@ public:
     Material * getMaterial(){return m;}
     void setMaterial(Material *);
     bool isLightSource(){ return isLight; }
-    virtual Point getIntersection(Ray) =0;
-    virtual Point getNormal(Point) =0;
+    virtual Point getIntersection(Ray) = 0;
+    virtual Point getNormal(Point) = 0;
 };
 
 

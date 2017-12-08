@@ -164,11 +164,12 @@ Point Triangle::getIntersection(Ray r){
 }
 
 Point Triangle::getNormal(Point p){
-    Point one = p1-p2;
-    Point two = p1-p3;
-    Point ret = one.cross(two);
-    ret.normalize();
-    return ret;
+    // Point one = p1-p2;
+    // Point two = p1-p3;
+    // Point ret = one.cross(two);
+    // ret.normalize();
+    n.normalize();
+    return n;
 }
 
 Point Sphere::getNormal(Point p){
@@ -180,35 +181,33 @@ Point Sphere::getNormal(Point p){
 
 // Function to solve a quadratic function
 // Code from https://www.scratchapixel.com/code.php?id=10&origin=/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes
-bool solveQuadratic(const float &a, const float &b, const float &c, float &x0, float &x1)
+bool solveQuadratic(const double &a, const double &b, const double &c, double &t0, double &t1)
 {
-    float discr = b * b - 4 * a * c;
+    double discr = b * b - 4.0 * a * c;
     if (discr < 0) 
         return false;
     else if (discr == 0) 
     {
-        x0 = x1 = - 0.5 * b / a;
+        t0 = t1 = - 0.5 * b / a;
     }
     else 
     {
-        float q = (b > 0) ?
+        double q = (b > 0) ?
         -0.5 * (b + sqrt(discr)) :
         -0.5 * (b - sqrt(discr));
-        x0 = q / a;
-        x1 = c / q;
+        t0 = q / a;
+        t1 = c / q;
     }
 
     return true;
 } 
-
-
 
 Point Sphere::getIntersection(Ray r){
 
 	// YOUR INTERSECTION CODE HERE.
     // RETURN THE POINT OF INTERSECTION FOR THIS SPHERE.
 
-    float t0 = 0, t1 = 0;
+    double t0 = 0, t1 = 0;
     
     Point p0 = r.p;
     Point directionVector = r.v;
@@ -216,36 +215,78 @@ Point Sphere::getIntersection(Ray r){
     //Point normal = this->n;
     Point normal = getNormal(p0);
 
+    Point len = p0 - center; // Distance to the center
 
-    Point len = p0 - center;
 
-    float a = directionVector*directionVector; // v^2
 
-    float b =  (directionVector * len ) * 2;
+
+    double a = directionVector*directionVector; // v^2
+
+    double b =  (directionVector * len ) * 2;
 
 
     //c = ||p0 - c||^2 - r^2
 
-    float c = len*len - (radius*radius); // Center of the Circle
+
+    
+    double c = len*len - (radius*radius); // Center of the Circle
 
     if (solveQuadratic(a, b, c, t0, t1) == false)
     {
         return Point::Infinite();  
     }
 
-    if (t0 > t1) std::swap(t0, t1);
+    if (t0 > t1) std::swap(t0, t1); // Use bigger result
 
-    if (t0 < 0) {
-        t0 = t1; // if t0 is negative, let's use t1 instead
-        if (t0 < 0)      
-            return Point::Infinite(); // both t0 and t1 are negative
-    }
+    double t = t0;
 
+    //Point intersectionPoint(t0,t1,p0.z);
+    
+    Point intersectionPoint = r.p + (r.v * t);
 
-    Point intersectionPoint(t0,t1,p0.z);
     //Point intersectionPoint (p0.x + (t0  * directionVector.x), p0.y + (t0 * directionVector.y), p0.z + (t0 * directionVector.z));
 
 
     return intersectionPoint; // Ray hits circle!
 }
 
+
+// Point Sphere::getIntersection(Ray r){
+
+//     Point origMinCenter = r.p - center;
+//     double discrim = (r.v * origMinCenter) * (r.v * origMinCenter) - 
+//                      (r.v * r.v) * ((origMinCenter * origMinCenter) - radius * radius);
+//     if (discrim <= EPS)     // less than zero
+//         return Point::Infinite();
+
+//     double sqrtDiscrim = sqrt(discrim);
+//     double tPos = (-(r.v * origMinCenter) + sqrtDiscrim) /  (r.v * r.v);
+//     double tNeg = (-(r.v * origMinCenter) - sqrtDiscrim) /  (r.v * r.v);
+
+//     double t;
+    
+//     // if (tPos <= EPS && tNeg <= EPS)
+//     //     return Point::Infinite();
+//     // else if (tPos <= EPS)
+//     //     t = tNeg;
+//     // else if (tNeg <= EPS)
+//     //     t = tPos;
+//     // else
+//     t = tPos < tNeg ? tPos : tNeg;
+
+//     Point hit = r.p + (r.v * t);
+// return hit;
+// }
+
+    // double term1 = (directionVector * len) * (directionVector * len);
+    // double term2 = a * (len * len) - radius * radius;
+
+    // double discr = term1 - term2;
+
+    // if (discr <= EPS)
+    // {
+    //     return Point::Infinite();
+    // }
+
+    // double t0 = (-(directionVector * len) + sqrt(discr)) /  (directionVector*directionVector);
+    // double t1 = (-(directionVector * len) - sqrt(discr)) /  (directionVector*directionVector);

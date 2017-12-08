@@ -1,5 +1,5 @@
 /*
-*   Skeleton code for CPSC 453 Assignment 4
+*   CPSC 453 Assignment 4
 *
 *   Based on code written by:
 *   Karl Augsten   
@@ -9,16 +9,45 @@ To compile, type:
 
 make all
 
-This will yield an executable called writepixels,
-which writes the rendered image to TestScene.rgb which you will have to 
-convert to .png using the command:
+To run:
 
-convert -size 512x512 -depth 8 TestScene.rgb File.png
+	./rayTracer --default
+	The program should write an image called default.ppm in the current directory. This image should be rendition of the test scene at a resolution of 512 x 512.
 
-The size of the image can be controlled within the file WritePixels.cpp
+	./rayTracer --yours
+	The program should write an image called yours.ppm in the current directory. This image should be a rendition of your modelled scene at a resolution of 512 pixels for the shorter side.
 
-The skeleton code is structured so that it should compile and yield a black 
-image when you run the executable. Please go through the code and write
-the missing code related to tracing rays, lighting and computing intersections.
+	If no flag is given, file is saved as default.ppm
+
+Features:
+
+------------------------------------------------
+
+1) Custom Resolution 
+
+	Usage: ./rayTracer --default [int]width [int]height
+
+	ex) ./rayTracer --default 512 512
+
+	default values are 512X512
+
+------------------------------------------------
+2) Custom FOV
+
+	Usage: ./rayTracer --default [int]width [int]height [int]FOV
+
+	ex) ./rayTracer --default 512 512 55
+
+	default value is 55
+------------------------------------------------
+
+3) Adjustable levels of SuperSampling and Depth 
+
+Usage: ./rayTracer --default [int]width [int]height [int]FOV [int]Depth [int]SuperSampling
+
+ex) ./rayTracer --default 512 512 55 
+
+------------------------------------------------
 
 
+------------------------------------------------

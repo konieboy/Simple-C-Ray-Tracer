@@ -1,16 +1,12 @@
 #include "RayTracer.h"
 #include <typeinfo>
 #include <iostream>
+#include <algorithm>
+#include <cstdint>
+#include <iomanip>
+#include <random>
 
-
-#define GLFW_INCLUDE_GLCOREARB
-#define GL_GLEXT_PROTOTYPES
-#include <GLFW/glfw3.h>
-
-#include <glm/gtx/euler_angles.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-using namespace glm;
+using namespace std;
 
 RayTracer::RayTracer(Scene * s, int maxd, int sm){
   scene = s;
@@ -59,7 +55,7 @@ Color RayTracer::trace(Ray r, int depth){
   Material* mat = hitObj->getMaterial();
 
   Point intersection =  hitObj->getIntersection(r);
-
+  
   return Phong(hitObj->getNormal(intersection), intersection, r, mat, hitObj);
 
   //hitObj->getMaterial();
@@ -74,7 +70,9 @@ Color RayTracer::trace(Ray r, int depth){
 }
 
 // Local Phong illumination at a point.
-Color RayTracer::Phong(Point normal,Point p, Ray r, Material * m, Object * o)
+// Coded based of https://steveharveynz.wordpress.com/category/programming/c-raytracer/
+
+Color RayTracer::Phong(Point normal, Point p, Ray r, Material * m, Object * o)
 {
   Color ret = Color(0.0, 0.0, 0.0, 0.0);
   
@@ -83,68 +81,96 @@ Color RayTracer::Phong(Point normal,Point p, Ray r, Material * m, Object * o)
   // For each Light Source L do:
   // Point pointLight =  scene->getNextLight();
   vector <Point> pointLights =  scene->lights;
-
+  
 
   Color LightColor = Color(1.0,1.0,1.0,1.0); // White light
+  //LightColor = LightColor + LightColor;
+  double LightPower = 0.70; // Should be based on distance
 
-  float LightPower = 30.0f;
-
-  Color ambientColor = m->getAmbient(p);
-  //ret = ret + ambientColor;
-
+  // Everything get hits by ambient light
+  Color ambientColor = m->getAmbient(p) * LightPower;
+   
+  Color diffuse =  Color(0.0, 0.0, 0.0, 1.0);
+  Color specularHighlight =  Color(0.0, 0.0, 0.0, 1.0);
 
   for (int i = 0 ;i < pointLights.size(); i++)
   {
     // If L visable
     // Draw ray from light to object, end if blocked by an object
 
+    // Find Direction towards light
+    Point lightDirection = (pointLights[i] - p);  
+    lightDirection.normalize();
 
-    Ray lightRay(pointLights[i],p); // Ray from light to Object
+    Ray lightRay(p, lightDirection); // Ray from light to Object. Point in direction of light and make sure it hits a light
 
     Object* hitObj = intersect(lightRay);
-    if (hitObj == o)
+    
+    double reflectiveness = 33.0;
+
+    normal.normalize();
+
+    if (hitObj == NULL || hitObj == o)  
     {
-      cout << "\n Lightx: " << pointLights[i].x << endl;
-      cout << "\n Lighty: " << pointLights[i].y << endl;
+        // Add Difuse component
+        Color diffuseColor = m->getDiffuse(p);
+        // ret = ret + diffuseColor;
 
-      // Add difuse color
-      //ret = ret + ambientColor;
+        // // Add specular component
+        Color specularColor = m->getSpecular(p);
+        // ret = ret + specularColor;
 
-    // Calculate Radance, rad at point
-    // rad = rad + Radiance at point
-    // Code taken from Assignment 3 shader
+        //double distance = (pointLights[i] - p).length;
 
-    //vec3 MaterialAmbientColor = vec3(0.1,0.1,0.1) * MaterialDiffuseColor;
+        // Calc Diffuse 
 
+        double lDotNormal = normal * lightDirection;
 
-    // Vec3 LightColor = vec3(1,1,1); // White light
-    // float LightPower = 30.0f;
-    // vec3 lightPos = vec3(4,0,4);
+        lDotNormal = lDotNormal < 0 ? 0.0f : lDotNormal; // Makes sure angle > 0
+        
+        diffuse = diffuse + (diffuseColor * LightPower * lDotNormal);
 
-    //ret = ret + pointLights[i]
-      // Something blocking light path
+        diffuse = diffuse + (diffuseColor * LightPower * m ->kd * lDotNormal);
 
+        // Calc Specular
+        // SPECULAR
+        Point toCamera = r.v * -1;
+        toCamera.normalize();
+        Point disFromLight = toCamera + lightDirection;
+        disFromLight.normalize();   // divide by length
+        double specReflec = max(disFromLight * normal, 0.0);
 
+        double refectivity = pow(specReflec,  reflectiveness);
+
+        specularHighlight = specularHighlight + specularColor * LightPower * refectivity;       
     }
+      
+      //else // In shadow, some object blocks light 
+      {
+        // cout << "\n Lightx: " << pointLights[i].x << endl;
+        // cout << "\n Lighty: " << pointLights[i].y << endl;
+
+        // Calculate Radance, rad at point
+        // rad = rad + Radiance at point
+        // Code taken from Assignment 3 shader
+
+        //ret = ret + pointLights[i]
+        // Something blocking light path
+
+      }
 
 
   }
 
-
-  //return ret;
-
-
-  // Specular-diffuse lighting only if the point is not in shadow
   
-  // Remember, you need to account for all the light sources.
-  
-  if (typeid(*o) == typeid(Triangle) )
-    ret = Color(0.1,1.0,0.0,0.0);
-  else
-    ret = Color(0.1,1.0,1.0,0.0);
-    //Color ambientColor = m->getAmbient(p);
+  // if (typeid(*o) == typeid(Triangle) )
+  //   ret = Color(0.1,1.0,0.0,0.0);
+  // else
+  //   ret = Color(0.1,1.0,1.0,0.0);
 
-  return ret;
+  Color finalColor = ambientColor + diffuse + specularHighlight; // Add all components of light together
+
+  return finalColor;
 }
 
 

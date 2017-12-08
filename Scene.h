@@ -45,7 +45,8 @@ public:
     void setUpVector(Point *);
     void setDirectionVector(Point *);
     Ray makeRay(double,double);
-    static Scene* initTestScene(int);
+    static Scene* initTestScene(int, int);
+    static Scene* initTestScene2(int, int);
     // can add your own scene here.
     
 };
