@@ -177,10 +177,10 @@ Scene * Scene::initTestScene(int N, int fov){
     
     t1 = new Triangle(v2,v3,v1,no1);
     t2 = new Triangle(v4,v1,v3,no1);
-    ret->addObject(t1);
-    ret->addObject(t2);
     t1->setMaterial(test1);
     t2->setMaterial(test1);
+    ret->addObject(t1);
+    ret->addObject(t2);
     
     t1 = new Triangle(v7,v4,v9,no4);
     t2 = new Triangle(v5,v7,v8,no4);
@@ -219,7 +219,7 @@ Scene * Scene::initTestScene2(int N, int fov){
     Scene * ret = new Scene(new Point(0,1.0,0),new Point(0,0,1.0),fov,N);  
     // Add in sphere
     Material * test = new Material();
-    test->type = DIFFUSE;
+    test->type = REFLECTIVE;
     test->kr = 0.03;
     test->kd = 0.44;
 
@@ -232,15 +232,17 @@ Scene * Scene::initTestScene2(int N, int fov){
     test1->kd = 0.44;
 
     test1->type = DIFFUSE;
-    test1->ambient = Color(0.3,0.3,0.3,1.0);
+    test1->ambient = Color(0.44,0.9,0.1,1.0);
     test1->diffuse = Color(0.8,0.8,0.8,1.0);
     test1->specular = Color(0.2,0.2,0.2,1.0);
+
+
     Material * test2 = new Material();
     test2->kr = 0.25;
     test2->kd = 0.22;
 
     test2->type = DIFFUSE;
-    test2->ambient = Color(0.4,0.25,0.25,1.0);
+    test2->ambient = Color(0.1,0.25,0.89,1.0);
     test2->diffuse = Color(0.5,0.1,0.1,1.0);
     test2->specular = Color(0.2,0.2,0.2,1.0);
 
@@ -276,35 +278,27 @@ Scene * Scene::initTestScene2(int N, int fov){
     Object * t2 = new Triangle(p4,p2,p3,n2);
     ret->addObject(t1);
     ret->addObject(t2);
-    t1->setMaterial(test2);
-    t2->setMaterial(test2);
+    t1->setMaterial(sphere);
+    t2->setMaterial(sphere);
     // Add in top square
     t1 = new Triangle(p5,p7,p6,n1);
     t2 = new Triangle(p8,p7,p5,n1);
     t1->setMaterial(test);
     t2->setMaterial(test);
 
-    // Add in left square
-    t1 = new Triangle(p3,p1,p8,n3);
-    t2 = new Triangle(p3,p8,p7,n3);
-    t1->setMaterial(test);
-    t2->setMaterial(test);
-    ret->addObject(t1);
-    ret->addObject(t2);
-
     // Add in back square
     t1 = new Triangle(p4,p3,p7,n5);
     t2 = new Triangle(p4,p7,p6,n5);
-    t1->setMaterial(test);
-    t2->setMaterial(test);
+    t1->setMaterial(test1);
+    t2->setMaterial(test1);
     ret->addObject(t1);
     ret->addObject(t2);
 
     // Add in right square
     t1 = new Triangle(p4,p2,p5,n4);
     t2 = new Triangle(p4,p5,p6,n4);
-    t1->setMaterial(test);
-    t2->setMaterial(test);
+    t1->setMaterial(test2);
+    t2->setMaterial(test2);
     ret->addObject(t1);
     ret->addObject(t2);
 
@@ -333,41 +327,50 @@ Scene * Scene::initTestScene2(int N, int fov){
     Point no3 = Point(-1.0,0.0,0.0);
     Point no4 = Point(1.0,0.0,0.0);
     Point no5 = Point(0.0,0.0,1.0);
+
+    Object * s2 = new Sphere(Point(100.0,100.0,100.0),120.0);
+    s2->setMaterial(test);
+    ret->addObject(s2);
+
+    Object * s3 = new Sphere(Point(100.0,320.0,100.0),120.0);
+    s3->setMaterial(sphere);
+    ret->addObject(s3);
+
+    // t1 = new Triangle(v2,v3,v1,no1);
+    // t2 = new Triangle(v4,v1,v3,no1);
+    // t1->setMaterial(test1);
+    // t2->setMaterial(test1);
+    // ret->addObject(t1);
+    // ret->addObject(t2);
+
     
-    t1 = new Triangle(v2,v3,v1,no1);
-    t2 = new Triangle(v4,v1,v3,no1);
-    ret->addObject(t1);
-    ret->addObject(t2);
-    t1->setMaterial(test1);
-    t2->setMaterial(test1);
+    // t1 = new Triangle(v7,v4,v9,no4);
+    // t2 = new Triangle(v5,v7,v8,no4);
+    // t1->setMaterial(test1);
+    // t2->setMaterial(test1);
+    // ret->addObject(t1);
+    // ret->addObject(t2);
     
-    t1 = new Triangle(v7,v4,v9,no4);
-    t2 = new Triangle(v5,v7,v8,no4);
-    t1->setMaterial(test1);
-    t2->setMaterial(test1);
-    ret->addObject(t1);
-    ret->addObject(t2);
+    // t1 = new Triangle(v9,v10,v4,no4);
+    // t2 = new Triangle(v9,v4,v5,no4);
+    // t1->setMaterial(test1);
+    // t2->setMaterial(test1);
+    // ret->addObject(t1);
+    // ret->addObject(t2);
     
-    t1 = new Triangle(v9,v10,v4,no4);
-    t2 = new Triangle(v9,v4,v5,no4);
-    t1->setMaterial(test1);
-    t2->setMaterial(test1);
-    ret->addObject(t1);
-    ret->addObject(t2);
+    // t1 = new Triangle(v11,v2,v10,no4);
+    // t2 = new Triangle(v11,v2,v9,no4);
+    // t1->setMaterial(test2);
+    // t2->setMaterial(test2);
+    // ret->addObject(t1);
+    // ret->addObject(t2);
     
-    t1 = new Triangle(v11,v2,v10,no4);
-    t2 = new Triangle(v11,v2,v9,no4);
-    t1->setMaterial(test2);
-    t2->setMaterial(test2);
-    ret->addObject(t1);
-    ret->addObject(t2);
-    
-    t1 = new Triangle(v8,v7,v2,no4);
-    t2 = new Triangle(v8,v7,v11,no4);
-    t1->setMaterial(test1);
-    t2->setMaterial(test1);
-    ret->addObject(t1);
-    ret->addObject(t2);
+    // t1 = new Triangle(v8,v7,v2,no4);
+    // t2 = new Triangle(v8,v7,v11,no4);
+    // t1->setMaterial(test1);
+    // t2->setMaterial(test1);
+    // ret->addObject(t1);
+    // ret->addObject(t2);
     
     return ret;
 }

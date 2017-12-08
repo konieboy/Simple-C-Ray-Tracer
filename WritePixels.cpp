@@ -14,6 +14,10 @@ int height = 512;
 
 int fov = 55;
 
+int depth = 12;
+
+int superSampling = 4;
+
 // Our ray tracer
 RayTracer * rt;
 
@@ -32,23 +36,37 @@ int main(const int argc, const char *argv[]){
 	if (argc > 4) // Custom FOV
 	{
 		fov = atoi(argv[4]);
-	}	
+	}
+
+	if (argc > 5) // Custom depth
+	{
+		depth = atoi(argv[5]);
+	}
+
+	if (argc > 6) // Custom superSampling
+	{
+		superSampling = atoi(argv[6]);
+	}
+
 	cout<< "\nFov: " << fov << endl;
 
 	if (test == "--default")
 	{
 		fileName  = "default.ppm";
-		rt = new RayTracer(Scene::initTestScene(width, fov),4,1);
+		rt = new RayTracer(Scene::initTestScene(width, fov),depth,superSampling);
 
 	}
 	if (test == "--yours")
 	{
 		fileName  = "yours.ppm";
-		rt = new RayTracer(Scene::initTestScene2(width, fov),4,1);
+		rt = new RayTracer(Scene::initTestScene2(width, fov),depth,superSampling);
 	}
 
 	cout<< "\nFile saved as: "<< fileName << endl;
 
+	cout<< "\nDepth level: "<< depth << endl;
+
+	cout<< "\nSuperSampling level: "<< superSampling << endl;
 
     // Test scene with max depth of 4 and sampling of 1
 	//rt = new RayTracer(Scene::initTestScene(width),12,4);

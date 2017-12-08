@@ -7,6 +7,7 @@
 #include <random>
 
 using namespace std;
+#define EPS 1E-2
 
 RayTracer::RayTracer(Scene * s, int maxd, int sm){
   scene = s;
@@ -40,31 +41,44 @@ Object * RayTracer::intersect(Ray r){
 // Trace a ray recursively
 Color RayTracer::trace(Ray r, int depth){
   Color rad=Color(0.0,0.0,0.0,0.0);
-  
+
   // YOUR CODE FOR RECURSIVE RAY TRACING GOES HERE
 
   // Calculate intersection P between ray and closest object
+  if (depth > this->maxdepth)
+  {
+    return rad; //End recurssion
+  }
 
   Object* hitObj = intersect(r);
   if (hitObj == NULL)
   {     
-    return rad;
+    return rad; // No object not hit by ray
   }
 
   // Determine the material type of that object 
   Material* mat = hitObj->getMaterial();
 
   Point intersection =  hitObj->getIntersection(r);
-  
-  return Phong(hitObj->getNormal(intersection), intersection, r, mat, hitObj);
+
+  rad = Phong(hitObj->getNormal(intersection), intersection, r, mat, hitObj);
+
+
+
+  // Recursive Reflection
+  if (mat->type == REFLECTIVE)
+  {
+    depth += 1;
+
+    Ray reflectedRay = r.reflect(hitObj->getNormal(intersection), intersection);
+    reflectedRay.p = reflectedRay.p + (reflectedRay.v * EPS); // Move along a smidge
+
+    rad = rad + RayTracer::trace(reflectedRay, depth);
+  }
 
   //hitObj->getMaterial();
 
- 
-
   //return Shade(r, P, material);
-
-
 
   return rad;
 }
@@ -74,18 +88,18 @@ Color RayTracer::trace(Ray r, int depth){
 
 Color RayTracer::Phong(Point normal, Point p, Ray r, Material * m, Object * o)
 {
-  Color ret = Color(0.0, 0.0, 0.0, 0.0);
-  
+  Color ret = Color(0.0, 0.0, 0.0, 1.0);
+  normal.normalize();
   // YOUR CODE HERE.
   // There is ambient lighting irrespective of shadow.
   // For each Light Source L do:
   // Point pointLight =  scene->getNextLight();
   vector <Point> pointLights =  scene->lights;
-  
+
 
   Color LightColor = Color(1.0,1.0,1.0,1.0); // White light
   //LightColor = LightColor + LightColor;
-  double LightPower = 0.70; // Should be based on distance
+  double LightPower = 0.33; // Should be based on distance to light maybe?
 
   // Everything get hits by ambient light
   Color ambientColor = m->getAmbient(p) * LightPower;
@@ -102,15 +116,17 @@ Color RayTracer::Phong(Point normal, Point p, Ray r, Material * m, Object * o)
     Point lightDirection = (pointLights[i] - p);  
     lightDirection.normalize();
 
-    Ray lightRay(p, lightDirection); // Ray from light to Object. Point in direction of light and make sure it hits a light
+    Ray lightRay(p + lightDirection * EPS, lightDirection); // Ray from light to Object. Point in direction of light and make sure it hits a light
+
 
     Object* hitObj = intersect(lightRay);
     
-    double reflectiveness = 33.0;
+    double reflectiveness = 1000.0 * m->kr;
 
-    normal.normalize();
+    // Check if in shadow
+    // Object should be in the way of the light
 
-    if (hitObj == NULL || hitObj == o)  
+   if (hitObj == NULL || (normal * lightDirection < 0))  
     {
         // Add Difuse component
         Color diffuseColor = m->getDiffuse(p);
@@ -136,9 +152,11 @@ Color RayTracer::Phong(Point normal, Point p, Ray r, Material * m, Object * o)
         // SPECULAR
         Point toCamera = r.v * -1;
         toCamera.normalize();
+
         Point disFromLight = toCamera + lightDirection;
         disFromLight.normalize();   // divide by length
-        double specReflec = max(disFromLight * normal, 0.0);
+        double specReflec = disFromLight * normal;
+        specReflec = specReflec < 0 ? 0.0f : specReflec; // Makes sure angle > 0
 
         double refectivity = pow(specReflec,  reflectiveness);
 
