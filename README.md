@@ -2,15 +2,8 @@
 
 ![alt text](https://github.com/konieboy/C-Ray-Tracer/blob/master/images/yours1.png)
 
+Konrad Wisniewski 2017 
 
-/*
-*   CPSC 453 Assignment 4
-*
-*   Based on code written by:
-*   Karl Augsten  
-* 	
-*	Konrad Wisniewski 2017 
-*/
 ------------------------------------------------
 ------------------------------------------------
 
