@@ -1,8 +1,6 @@
+# Ray Tracer
+
 ![alt text](https://github.com/konieboy/C-Ray-Tracer/blob/master/images/yours1.png)
-
-
-
-
 
 
 /*
